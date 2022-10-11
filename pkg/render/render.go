@@ -2,6 +2,7 @@ package render
 
 import (
 	"basicwebapp/pkg/config"
+	"basicwebapp/pkg/models"
 	"bytes"
 	"html/template"
 	"log"
@@ -18,7 +19,12 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+	return td
+}
+
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
+	// get the template cache from the app config
 	var tc map[string]*template.Template
 	var err error
 	if app.UseCache {
@@ -31,8 +37,6 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	}
 	// create a template cache
 
-	// get the template cache from the app config
-
 	// get requested template from cache
 	t, ok := tc[tmpl]
 	if !ok {
@@ -40,7 +44,8 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	}
 
 	buf := new(bytes.Buffer)
-	err = t.Execute(buf, nil)
+	td = AddDefaultData(td)
+	err = t.Execute(buf, td)
 	if err != nil {
 		log.Println(err)
 	}
