@@ -1,11 +1,11 @@
 package main
 
 import (
-	"basicwebapp/pkg/config"
-	"basicwebapp/pkg/handlers"
 	"github.com/bmizerany/pat"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/shubhamr10/learningGo/pkg/config"
+	"github.com/shubhamr10/learningGo/pkg/handlers"
 	"net/http"
 )
 

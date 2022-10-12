@@ -1,11 +1,11 @@
 package main
 
 import (
-	"basicwebapp/pkg/config"
-	"basicwebapp/pkg/handlers"
-	"basicwebapp/pkg/render"
 	"fmt"
 	"github.com/alexedwards/scs/v2"
+	"github.com/shubhamr10/learningGo/pkg/config"
+	"github.com/shubhamr10/learningGo/pkg/handlers"
+	"github.com/shubhamr10/learningGo/pkg/render"
 	"log"
 	"net/http"
 	"time"
