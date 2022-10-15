@@ -1,9 +1,9 @@
 package render
 
 import (
-	"basicwebapp/pkg/config"
-	"basicwebapp/pkg/models"
 	"bytes"
+	"github.com/shubhamr10/learningGo/pkg/config"
+	"github.com/shubhamr10/learningGo/pkg/models"
 	"html/template"
 	"log"
 	"net/http"

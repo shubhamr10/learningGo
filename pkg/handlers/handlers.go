@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"basicwebapp/pkg/config"
-	"basicwebapp/pkg/models"
-	"basicwebapp/pkg/render"
+	"github.com/shubhamr10/learningGo/pkg/config"
+	"github.com/shubhamr10/learningGo/pkg/models"
+	"github.com/shubhamr10/learningGo/pkg/render"
 	"net/http"
 )
 

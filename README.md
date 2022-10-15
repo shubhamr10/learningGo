@@ -1,7 +1,24 @@
-# learningGo
-All the projects made while learning golang
+# Bread and Breakfast Application
+github.com/shubhamr10/learningGo
 
-Service Oriented Application : Distributed Application : Microservices
-Monolithic Application
+## Planning
+* Deciding what to build   : Booking & Reservations
+* Project Scope            : A Bed & Breakfast with two rooms
+* Key functionality        : What do we need to do ?
 
-go mod tidy
+### Key Functionality
+* Showcase the property
+* Allow for booking a room for one or more nights
+* Check a room's availability
+* Book the room
+* Notify guest, and notify property owner  
+
+* Have a backend that owner logs into
+* Renew existing bookings
+* Show a calendar of bookings
+* Change or cancel a booking
+
+### What will we need ?
+* An authentication system
+* Somewhere to store information (database)
+* A means of sending notification (email/text)
