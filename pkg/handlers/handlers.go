@@ -47,3 +47,43 @@ func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 		StringMap: stringmap,
 	})
 }
+
+// Generals is the homepage handler
+func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
+	remoteIp := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIp)
+
+	render.RenderTemplate(w, "generals.page.tmpl", &models.TemplateData{})
+}
+
+// Majors is the homepage handler
+func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
+	remoteIp := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIp)
+
+	render.RenderTemplate(w, "majors.page.tmpl", &models.TemplateData{})
+}
+
+// MakeReservations is the homepage handler
+func (m *Repository) MakeReservations(w http.ResponseWriter, r *http.Request) {
+	remoteIp := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIp)
+
+	render.RenderTemplate(w, "make-reservation.page.tmpl", &models.TemplateData{})
+}
+
+// SearchAvailability is the homepage handler
+func (m *Repository) SearchAvailability(w http.ResponseWriter, r *http.Request) {
+	remoteIp := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIp)
+
+	render.RenderTemplate(w, "search-availability.page.tmpl", &models.TemplateData{})
+}
+
+// Contact is the homepage handler
+func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
+	remoteIp := r.RemoteAddr
+	m.App.Session.Put(r.Context(), "remote_ip", remoteIp)
+
+	render.RenderTemplate(w, "contact.page.tmpl", &models.TemplateData{})
+}
