@@ -3,9 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/shubhamr10/learningGo/pkg/config"
-	"github.com/shubhamr10/learningGo/pkg/models"
-	"github.com/shubhamr10/learningGo/pkg/render"
+	"github.com/shubhamr10/learningGo/internal/config"
+	"github.com/shubhamr10/learningGo/internal/models"
+	"github.com/shubhamr10/learningGo/internal/render"
 	"log"
 	"net/http"
 )

@@ -4,8 +4,8 @@ import (
 	"github.com/bmizerany/pat"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/shubhamr10/learningGo/pkg/config"
-	"github.com/shubhamr10/learningGo/pkg/handlers"
+	"github.com/shubhamr10/learningGo/internal/config"
+	"github.com/shubhamr10/learningGo/internal/handlers"
 	"net/http"
 )
 

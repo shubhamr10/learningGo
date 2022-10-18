@@ -3,8 +3,8 @@ package render
 import (
 	"bytes"
 	"github.com/justinas/nosurf"
-	"github.com/shubhamr10/learningGo/pkg/config"
-	"github.com/shubhamr10/learningGo/pkg/models"
+	"github.com/shubhamr10/learningGo/internal/config"
+	"github.com/shubhamr10/learningGo/internal/models"
 	"html/template"
 	"log"
 	"net/http"
