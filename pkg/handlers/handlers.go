@@ -105,7 +105,6 @@ func (m *Repository) PostSearchAvailabilityJSON(w http.ResponseWriter, r *http.R
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(string(out))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
