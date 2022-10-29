@@ -25,3 +25,6 @@ github.com/shubhamr10/learningGo
 
 ### Other templating engine
 https://github.com/CloudyKit/jet
+
+## See your test coverage in details
+go test -coverprofile=coverage.out && go tool cover -html=coverage.out
