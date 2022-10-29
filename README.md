@@ -22,3 +22,6 @@ github.com/shubhamr10/learningGo
 * An authentication system
 * Somewhere to store information (database)
 * A means of sending notification (email/text)
+
+### Other templating engine
+https://github.com/CloudyKit/jet
