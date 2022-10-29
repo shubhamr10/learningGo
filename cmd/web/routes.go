@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/bmizerany/pat"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/shubhamr10/learningGo/internal/config"
@@ -10,14 +9,14 @@ import (
 )
 
 // muxroutes create routing using "github.com/bmizerany/pat"
-func muxroutes(app *config.AppConfig) http.Handler {
-	mux := pat.New()
-
-	mux.Get("/", http.HandlerFunc(handlers.Repo.Home))
-	mux.Get("/about", http.HandlerFunc(handlers.Repo.About))
-
-	return mux
-}
+//func muxroutes(app *config.AppConfig) http.Handler {
+//	mux := pat.New()
+//
+//	mux.Get("/", http.HandlerFunc(handlers.Repo.Home))
+//	mux.Get("/about", http.HandlerFunc(handlers.Repo.About))
+//
+//	return mux
+//}
 
 func routes(app *config.AppConfig) http.Handler {
 	mux := chi.NewRouter()
@@ -33,6 +32,8 @@ func routes(app *config.AppConfig) http.Handler {
 	mux.Get("/majors-suite", handlers.Repo.Majors)
 
 	mux.Get("/make-reservations", handlers.Repo.MakeReservations)
+	mux.Post("/make-reservations", handlers.Repo.PostMakeReservations)
+	mux.Get("/reservation-summary", handlers.Repo.ReservationSummary)
 
 	mux.Get("/search-availability", handlers.Repo.SearchAvailability)
 	mux.Post("/search-availability", handlers.Repo.PostSearchAvailability)
