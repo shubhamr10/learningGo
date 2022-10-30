@@ -89,6 +89,11 @@ func TestForm_MinLength(t *testing.T) {
 		t.Error("email length should be  invalid!")
 	}
 
+	isError := form.Errors.Get("email")
+	if isError == "" {
+		t.Error("should throw an error here!")
+	}
+
 	postedUrl := url.Values{}
 	postedUrl.Add("email", "shubham@acquiew.io")
 	r, _ = http.NewRequest("POST", "/test-url", nil)
@@ -98,5 +103,10 @@ func TestForm_MinLength(t *testing.T) {
 	form.MinLength("email", 10)
 	if !form.Valid() {
 		t.Error("email length should be  valid!")
+	}
+
+	isError = form.Errors.Get("email")
+	if isError != "" {
+		t.Error("should not throw an error here!")
 	}
 }
