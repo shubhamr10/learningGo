@@ -43,3 +43,19 @@ func getSession() (*http.Request, error) {
 	r = r.WithContext(ctx)
 	return r, nil
 }
+
+type myWriter struct{}
+
+func (tw *myWriter) Header() http.Header {
+	var h http.Header
+	return h
+}
+
+func (tw *myWriter) WriteHeader(i int) {
+
+}
+
+func (tw *myWriter) Write(b []byte) (int, error) {
+	length := len(b)
+	return length, nil
+}
