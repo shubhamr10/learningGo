@@ -22,3 +22,9 @@ github.com/shubhamr10/learningGo
 * An authentication system
 * Somewhere to store information (database)
 * A means of sending notification (email/text)
+
+### Other templating engine
+https://github.com/CloudyKit/jet
+
+## See your test coverage in details
+go test -coverprofile=coverage.out && go tool cover -html=coverage.out

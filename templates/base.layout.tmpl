@@ -51,6 +51,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/contact">Contact</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/make-reservations">Make Reservations</a>
+                </li>
 
             </ul>
         </div>
@@ -110,31 +113,6 @@
             }, false);
         })();
 
-        // document.getElementById("colorButton").addEventListener("click", function () {
-        //     let html = `
-        // <form id="check-availability-form" action="" method="post" novalidate class="needs-validation">
-        //     <div class="form-row">
-        //         <div class="col">
-        //             <div class="form-row" id="reservation-dates-modal">
-        //                 <div class="col">
-        //                     <input disabled required class="form-control" type="text" name="start" id="start" placeholder="Arrival">
-        //                 </div>
-        //                 <div class="col">
-        //                     <input disabled required class="form-control" type="text" name="end" id="end" placeholder="Departure">
-        //                 </div>
-        //
-        //             </div>
-        //         </div>
-        //     </div>
-        // </form>
-        // `;
-        //     attention.custom({
-        //         title: 'Choose your dates',
-        //         msg: html,
-        //     });
-        // })
-
-
         function notify(msg, msgType) {
             notie.alert({
                 type: msgType,
@@ -150,6 +128,18 @@
                 confirmButtonText: confirmationButtonText
             })
         }
+        {{with .Error}}
+        notify("{{.}}", "error")
+        {{end}}
+
+        {{with .Flash}}
+        notify("{{.}}", "success")
+        {{end}}
+
+        {{with .Warning}}
+        notify("{{.}}", "warning")
+        {{end}}
+
 
         function Prompt() {
             let toast = function (c) {
@@ -215,22 +205,21 @@
                     title = "",
                 } = c;
 
-                const {value: formValues} = await Swal.fire({
+                const {value: results} = await Swal.fire({
                     title: title,
                     html: msg,
                     backdrop: false,
                     focusConfirm: false,
                     showCancelButton: true,
                     willOpen: () => {
-                        const elem = document.getElementById("reservation-dates-modal");
-                        const rp = new DateRangePicker(elem, {
-                            format: 'yyyy-mm-dd',
-                            showOnFocus: true,
-                        })
+                        if (c.willOpen !== undefined) {
+                            c.willOpen()
+                        }
                     },
                     didOpen: () => {
-                        document.getElementById("start").removeAttribute("disabled");
-                        document.getElementById("end").removeAttribute("disabled");
+                        if (c.didOpen !== undefined) {
+                            c.didOpen()
+                        }
                     },
                     preConfirm: () => {
                         return [
@@ -240,8 +229,18 @@
                     }
                 })
 
-                if (formValues) {
-                    Swal.fire(JSON.stringify(formValues))
+                if (results) {
+                    if (results.dismiss !== Swal.DismissReason.cancel) {
+                        if (results.value !== "") {
+                            if (c.callback !== undefined) {
+                                c.callback(results)
+                            }
+                        } else {
+                            c.callback(false)
+                        }
+                    } else {
+                        c.callback(false)
+                    }
                 }
             }
 
