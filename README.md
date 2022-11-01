@@ -35,3 +35,13 @@ We are using :postgres as a database through docker.
 Dbeaver is the CLI to connect to the postgres as it is a lightweight one.
 
 We are using "Soda" a.k.a "Pop" by buffalo to create our tables using migrations.
+
+
+```text
+soda genrate fizz <table_name>
+
+soda migrate
+
+soda migrate down
+
+```
