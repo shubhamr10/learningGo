@@ -28,3 +28,10 @@ https://github.com/CloudyKit/jet
 
 ## See your test coverage in details
 go test -coverprofile=coverage.out && go tool cover -html=coverage.out
+
+# Database integration
+
+We are using :postgres as a database through docker.
+Dbeaver is the CLI to connect to the postgres as it is a lightweight one.
+
+We are using "Soda" a.k.a "Pop" by buffalo to create our tables using migrations.
