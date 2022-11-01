@@ -38,7 +38,7 @@ We are using "Soda" a.k.a "Pop" by buffalo to create our tables using migrations
 
 
 ```text
-soda genrate fizz <table_name>
+soda generate fizz <table_name>
 
 soda migrate
 
