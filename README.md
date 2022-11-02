@@ -45,3 +45,5 @@ soda migrate
 soda migrate down
 
 ```
+
+indices make search faster.
