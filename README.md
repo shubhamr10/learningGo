@@ -47,3 +47,9 @@ soda migrate down
 ```
 
 indices make search faster.
+
+
+soda reset
+This will delete all the tables and create again
+I mean it runs all down migrations and then up migrations, but no client should be connected
+to database. not even Dbeaver.
