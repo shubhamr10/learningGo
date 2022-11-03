@@ -1,8 +1,9 @@
 development:
   dialect: postgres
   database: bookings
-  user:
-  password:
+  user: postgres
+  password: postgrespw
+  port: 55000
   host: 127.0.0.1
   pool: 5
 
@@ -10,4 +11,4 @@ test:
   url: {{envOr "TEST_DATABASE_URL" "postgres://postgres:postgres@127.0.0.1:5432/myapp_test"}}
 
 production:
-  url: {{envOr "DATABASE_URL" "postgres://postgres:postgres@127.0.0.1:5432/myapp_production"}}
+  url: {{envOr "
