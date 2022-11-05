@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/alexedwards/scs/v2"
 	"github.com/shubhamr10/learningGo/internal/config"
+	"github.com/shubhamr10/learningGo/internal/driver"
 	"github.com/shubhamr10/learningGo/internal/handlers"
 	"github.com/shubhamr10/learningGo/internal/helpers"
 	"github.com/shubhamr10/learningGo/internal/models"
@@ -23,10 +24,11 @@ var infoLog *log.Logger
 var errorLog *log.Logger
 
 func main() {
-	err := run()
+	db, err := run()
 	if err != nil {
 		log.Fatal(err, "Stopped")
 	}
+	defer db.SQL.Close()
 	fmt.Println(fmt.Sprintf("Starting application at port number: %s", portNumber))
 	//http.ListenAndServe(portNumber, nil)
 	srv := &http.Server{
@@ -40,9 +42,12 @@ func main() {
 	}
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	// What am I going to put in the sessions
 	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
+	gob.Register(models.Room{})
+	gob.Register(models.RoomRestriction{})
 
 	// change this to true when in production
 	app.InProduction = false
@@ -61,20 +66,27 @@ func run() error {
 
 	app.Session = session
 
+	// connect to database
+	log.Println("connecting to database....")
+	db, err := driver.ConnectSQL("host=localhost port=55000 dbname=bookings user=postgres password=postgrespw")
+	if err != nil {
+		log.Fatal("cannot connect to database die..")
+	}
+	log.Println("connect to database...")
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal(err)
-		return err
+		return nil, err
 	}
 	app.TemplateCache = tc
 	app.UseCache = false
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 
-	render.NewTemplates(&app)
+	render.NewRenderer(&app)
 	helpers.NewHelper(&app)
 
 	//http.HandleFunc("/", handlers.Repo.Home)
 	//http.HandleFunc("/about", handlers.Repo.About)
-	return nil
+	return db, nil
 }
