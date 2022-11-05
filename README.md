@@ -53,3 +53,18 @@ soda reset
 This will delete all the tables and create again
 I mean it runs all down migrations and then up migrations, but no client should be connected
 to database. not even Dbeaver.
+
+# Object Relational Model for db
+1. GORM
+2. upper/db
+
+Don't use these because it slows down your code.
+
+
+```go
+// this function allows to cancel the transaction if there is any problem
+// In case of the web application it is very unpredictable that things would work in a 
+// better way
+context.WithTimeout()
+db.ExecContext
+```
