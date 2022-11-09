@@ -68,3 +68,6 @@ Don't use these because it slows down your code.
 context.WithTimeout()
 db.ExecContext
 ```
+
+soda generate sql <filename>
+generates a sql migration file
