@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"testing"
 	"time"
 )
 
@@ -27,7 +28,7 @@ var infoLog *log.Logger
 var errorLog *log.Logger
 var db *driver.DB
 
-func getRoutes() http.Handler {
+func TestMain(m *testing.M) {
 
 	// What am I going to put in the sessions
 	gob.Register(models.Reservation{})
@@ -54,10 +55,15 @@ func getRoutes() http.Handler {
 	}
 	app.TemplateCache = tc
 	app.UseCache = true
-	repo := NewRepo(&app, db)
+	repo := NewTestRepo(&app)
 	NewHandlers(repo)
 
 	render.NewRenderer(&app)
+
+	os.Exit(m.Run())
+}
+
+func getRoutes() http.Handler {
 
 	mux := chi.NewRouter()
 

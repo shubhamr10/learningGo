@@ -3,6 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/shubhamr10/learningGo/internal/config"
 	"github.com/shubhamr10/learningGo/internal/driver"
@@ -12,9 +16,6 @@ import (
 	"github.com/shubhamr10/learningGo/internal/render"
 	"github.com/shubhamr10/learningGo/internal/repository"
 	"github.com/shubhamr10/learningGo/internal/repository/dbrepo"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type Repository struct {
@@ -30,6 +31,14 @@ func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
 		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
+	}
+}
+
+// NewTestRepo creates a new repository for tests
+func NewTestRepo(a *config.AppConfig) *Repository {
+	return &Repository{
+		App: a,
+		DB:  dbrepo.NewTestingRepo(a),
 	}
 }
 
@@ -68,13 +77,19 @@ func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) MakeReservations(w http.ResponseWriter, r *http.Request) {
 	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
-		helpers.ServerError(w, errors.New("cannot get reservations from session"))
+		m.App.Session.Put(r.Context(), "error", "can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		//helpers.ServerError(w, errors.New("cannot get reservations from session"))
+		//return
 	}
 	room, err := m.DB.GetRoomByID(res.RoomID)
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "can't find room.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		//helpers.ServerError(w, err)
+		//return
 	}
 	res.Room.RoomName = room.RoomName
 
@@ -106,8 +121,11 @@ func (m *Repository) PostMakeReservations(w http.ResponseWriter, r *http.Request
 
 	err := r.ParseForm()
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "can't find room.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err)
+		// return
 	}
 
 	reservation.FirstName = r.Form.Get("first_name")
@@ -134,8 +152,11 @@ func (m *Repository) PostMakeReservations(w http.ResponseWriter, r *http.Request
 	//Insert data to reservation table
 	newReservationID, err := m.DB.InsertReservation(reservation)
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "can't insert into database.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err)
+		// return
 	}
 
 	restriction := models.RoomRestriction{
@@ -147,8 +168,11 @@ func (m *Repository) PostMakeReservations(w http.ResponseWriter, r *http.Request
 	}
 	err = m.DB.InsertRoomRestriction(restriction)
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "can't insert room roomaretiction.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err)
+		// return
 	}
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
