@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/shubhamr10/learningGo/internal/config"
 	"github.com/shubhamr10/learningGo/internal/driver"
 	"github.com/shubhamr10/learningGo/internal/forms"
-	"github.com/shubhamr10/learningGo/internal/helpers"
 	"github.com/shubhamr10/learningGo/internal/models"
 	"github.com/shubhamr10/learningGo/internal/render"
 	"github.com/shubhamr10/learningGo/internal/repository"
@@ -190,23 +189,39 @@ func (m *Repository) SearchAvailability(w http.ResponseWriter, r *http.Request) 
 
 // PostSearchAvailability is the homepage handler
 func (m *Repository) PostSearchAvailability(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "can't parse form.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+		// helpers.ServerError(w, err)
+		// return
+	}
+
 	start := r.Form.Get("start")
 	end := r.Form.Get("end")
 	// convert into time.Layout format
 	layout := "2006-01-02"
 	startDate, err := time.Parse(layout, start)
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "invalid start date.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err)
+		// return
 	}
 	endDate, err := time.Parse(layout, end)
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "invalid end date.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err)
+		// return
 	}
 	rooms, err := m.DB.SearchAvailabilityForAllRooms(startDate, endDate)
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "error while fetching availability.")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 	if len(rooms) == 0 {
@@ -301,7 +316,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
 		//log.Println("cannot get item from session")
-		m.App.ErrorLog.Println("cannot get item from session")
+		// m.App.ErrorLog.Println("cannot get item from session")
 		m.App.Session.Put(r.Context(), "error", "Cannot get reservation from session!")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
@@ -324,14 +339,28 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 
 // ChooseRoom displays list of available rooms
 func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
-	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	// used to have next 6 lines
+	//roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	//if err != nil {
+	//	log.Println(err)
+	//	m.App.Session.Put(r.Context(), "error", "missing url parameter")
+	//	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	//	return
+	//}
+
+	// changed to this, so we can test it more easily
+	// split the URL up by /, and grab the 3rd element
+	exploded := strings.Split(r.RequestURI, "/")
+	roomID, err := strconv.Atoi(exploded[2])
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "missing url parameter")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 	res, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "unable to find reservation to put room upon")
+		http.Redirect(w, r, "/", http.StatusBadRequest)
 		return
 	}
 	res.RoomID = roomID
@@ -344,30 +373,27 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 	roomId, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil {
-		helpers.ServerError(w, err)
+		m.App.Session.Put(r.Context(), "error", "missing url parameter for room id")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err)
+		// return
 	}
 	sd := r.URL.Query().Get("s")
 	ed := r.URL.Query().Get("e")
 
 	layout := "2006-01-02"
-	startDate, err := time.Parse(layout, sd)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-	endDate, err2 := time.Parse(layout, ed)
-	if err2 != nil {
-		helpers.ServerError(w, err2)
-		return
-	}
+	startDate, _ := time.Parse(layout, sd)
+	endDate, _ := time.Parse(layout, ed)
 
 	room, err3 := m.DB.GetRoomByID(roomId)
 	if err3 != nil {
-		helpers.ServerError(w, err3)
+		m.App.Session.Put(r.Context(), "error", "invalid room id")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, err3)
+		// return
 	}
-
 	var res models.Reservation
 	res.RoomID = roomId
 	res.StartDate = startDate

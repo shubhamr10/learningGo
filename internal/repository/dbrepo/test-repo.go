@@ -50,6 +50,22 @@ func (m *testDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roo
 func (m *testDBRepo) SearchAvailabilityForAllRooms(start, end time.Time) ([]models.Room, error) {
 
 	var rooms []models.Room
+	layout := "2006-01-02"
+	booked_date_start, _ := time.Parse(layout, "2050-01-01")
+	booked_date_end, _ := time.Parse(layout, "2050-02-01")
+	// if the start and end lies then no room is available
+	if start.After(booked_date_start) && start.Before(booked_date_end) {
+		// no rooms available
+		return rooms, nil
+	}
+	if start == booked_date_start {
+		return rooms, errors.New("some error")
+	}
+	// roms are available
+	room := models.Room{
+		ID: 1,
+	}
+	rooms = append(rooms, room)
 
 	return rooms, nil
 }
