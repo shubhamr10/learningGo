@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
 	"strings"
 	"testing"
@@ -132,13 +133,22 @@ func TestRepository_PostMakeReservations(t *testing.T) {
 		StartDate: startDate,
 		EndDate:   endDate,
 	}
-	reqBody := "first_name=John"
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "email=john@smith.com")
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
+	// reqBody := "first_name=John"
+	// reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
+	// reqBody = fmt.Sprintf("%s&%s", reqBody, "email=john@smith.com")
+	// reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
+	// reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
 
-	req, _ := http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(reqBody))
+	// req, _ := http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(reqBody))
+
+	// the above body creation can be also done as
+	postedData := url.Values{}
+	postedData.Add("first_name", "John")
+	postedData.Add("last_name", "Smith")
+	postedData.Add("email", "john@smith.com")
+	postedData.Add("phone", "5678543")
+	postedData.Add("room_id", "1")
+	req, _ := http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(postedData.Encode()))
 	ctx := GetCtx(req)
 	req = req.WithContext(ctx)
 
@@ -198,7 +208,7 @@ func TestRepository_PostMakeReservations(t *testing.T) {
 	}
 
 	// running test for invalid form data
-	reqBody = "first_name=Jn"
+	reqBody := "first_name=Jn"
 	reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
 	reqBody = fmt.Sprintf("%s&%s", reqBody, "email=johnsmith.com")
 	reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
