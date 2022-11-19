@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/shubhamr10/learningGo/internal/models"
 )
@@ -118,26 +119,161 @@ func TestRepository_MakeReservations(t *testing.T) {
 }
 
 func TestRepository_PostMakeReservations(t *testing.T) {
-	reqBody := "start_date=2050-01-10"
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "end_date=2050-02-01")
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "first_name=John")
+	// # test case 1 - where data is present
+	// convert into time.Layout format
+	layout := "2006-01-02"
+	startDate, _ := time.Parse(layout, "2050-01-01")
+	endDate, _ := time.Parse(layout, "2050-02-01")
+
+	reservation := models.Reservation{
+		StartDate: startDate,
+		EndDate:   endDate,
+	}
+	reqBody := "first_name=John"
 	reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
 	reqBody = fmt.Sprintf("%s&%s", reqBody, "email=john@smith.com")
-	reqBody = fmt.Sprintf("%s&%s", reqBody, "end_date=2050-02-01")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
 	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
-	req, _ := http.NewRequest(http.MethodPost, "/make-reservation", strings.NewReader(reqBody))
+
+	req, _ := http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(reqBody))
 	ctx := GetCtx(req)
 	req = req.WithContext(ctx)
 
+	// setting headers
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// rr stands for responseRecorder
 	rr := httptest.NewRecorder()
+	session.Put(ctx, "reservation", reservation)
 
 	handler := http.HandlerFunc(Repo.PostMakeReservations)
 	handler.ServeHTTP(rr, req)
 
 	if rr.Code != http.StatusSeeOther {
-		t.Errorf("Post makeReservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusSeeOther)
+		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusSeeOther)
 	}
+
+	// test for missing post body
+	req, _ = http.NewRequest(http.MethodPost, "/make-reservations", nil)
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+
+	// setting headers
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// rr stands for responseRecorder
+	rr = httptest.NewRecorder()
+	session.Put(ctx, "reservation", reservation)
+
+	handler = http.HandlerFunc(Repo.PostMakeReservations)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+
+	// test for invalid date and room id was there in the video
+	// but we are using session which are pre-defined then we skip those tests
+
+	// test for invalid session
+	// write table test instead
+	req, _ = http.NewRequest(http.MethodPost, "/make-reservations", nil)
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+
+	// setting headers
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// rr stands for responseRecorder
+	rr = httptest.NewRecorder()
+
+	handler = http.HandlerFunc(Repo.PostMakeReservations)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+
+	// running test for invalid form data
+	reqBody = "first_name=Jn"
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "email=johnsmith.com")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
+
+	req, _ = http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(reqBody))
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+
+	// setting headers
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// rr stands for responseRecorder
+	rr = httptest.NewRecorder()
+
+	session.Put(ctx, "reservation", reservation)
+
+	handler = http.HandlerFunc(Repo.PostMakeReservations)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusOK)
+	}
+
+	// test insert insert reservation
+	reservation.RoomID = 2
+	reqBody = "first_name=John"
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "email=john@smith.com")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=2")
+
+	req, _ = http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(reqBody))
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+
+	// setting headers
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// rr stands for responseRecorder
+	rr = httptest.NewRecorder()
+
+	session.Put(ctx, "reservation", reservation)
+
+	handler = http.HandlerFunc(Repo.PostMakeReservations)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+
+	// test for failure of room restriction entry to database
+	reservation.RoomID = 1000
+	reqBody = "first_name=John"
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "last_name=Smith")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "email=john@smith.com")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "phone=123456789")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
+
+	req, _ = http.NewRequest(http.MethodPost, "/make-reservations", strings.NewReader(reqBody))
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+
+	// setting headers
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// rr stands for responseRecorder
+	rr = httptest.NewRecorder()
+
+	session.Put(ctx, "reservation", reservation)
+
+	handler = http.HandlerFunc(Repo.PostMakeReservations)
+	handler.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
+	}
+
 }
 
 func GetCtx(req *http.Request) context.Context {

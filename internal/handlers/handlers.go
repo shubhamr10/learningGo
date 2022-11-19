@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -115,8 +114,11 @@ func (m *Repository) MakeReservations(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) PostMakeReservations(w http.ResponseWriter, r *http.Request) {
 	reservation, ok := m.App.Session.Get(r.Context(), "reservation").(models.Reservation)
 	if !ok {
-		helpers.ServerError(w, errors.New("cannot get from session"))
+		m.App.Session.Put(r.Context(), "error", "can't get reservation from session")
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
+		// helpers.ServerError(w, errors.New("cannot get from session"))
+		// return
 	}
 
 	err := r.ParseForm()
