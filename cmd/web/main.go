@@ -30,6 +30,19 @@ func main() {
 		log.Fatal(err, "Stopped")
 	}
 	defer db.SQL.Close()
+	// close function is used to close a channel
+	defer close(app.MailChan)
+	log.Println("starting mail listener!")
+	listenForMail()
+
+	// sending a test email
+	// msg := models.MailData{
+	// 	To:      "john@do.ca",
+	// 	From:    "me@here.com",
+	// 	Subject: "Some subject",
+	// 	Content: "",
+	// }
+	// app.MailChan <- msg
 
 	// sending an email using golang standard library
 	// from := "me@here.com"
@@ -58,6 +71,9 @@ func run() (*driver.DB, error) {
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
 	gob.Register(models.RoomRestriction{})
+
+	mainChan := make(chan models.MailData)
+	app.MailChan = mainChan
 
 	// change this to true when in production
 	app.InProduction = false
