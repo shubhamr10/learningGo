@@ -3,6 +3,11 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/shubhamr10/learningGo/internal/config"
 	"github.com/shubhamr10/learningGo/internal/driver"
@@ -10,10 +15,6 @@ import (
 	"github.com/shubhamr10/learningGo/internal/helpers"
 	"github.com/shubhamr10/learningGo/internal/models"
 	"github.com/shubhamr10/learningGo/internal/render"
-	"log"
-	"net/http"
-	"os"
-	"time"
 )
 
 const portNumber = ":8080"
@@ -29,6 +30,15 @@ func main() {
 		log.Fatal(err, "Stopped")
 	}
 	defer db.SQL.Close()
+
+	// sending an email using golang standard library
+	// from := "me@here.com"
+	// auth := smtp.PlainAuth("", from, "", "localhost")
+	// err = smtp.SendMail("localhost:1025", auth, from, []string{"you@fair.com"}, []byte("Hello world"))
+	// if err != nil {
+	// 	log.Println("error while sending email", err)
+	// }
+
 	fmt.Println(fmt.Sprintf("Starting application at port number: %s", portNumber))
 	//http.ListenAndServe(portNumber, nil)
 	srv := &http.Server{
