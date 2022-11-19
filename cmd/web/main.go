@@ -40,7 +40,7 @@ func main() {
 	// 	To:      "john@do.ca",
 	// 	From:    "me@here.com",
 	// 	Subject: "Some subject",
-	// 	Content: "",
+	// 	Content: "<strong>hello</strong>",
 	// }
 	// app.MailChan <- msg
 
