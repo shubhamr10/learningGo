@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -274,6 +275,97 @@ func TestRepository_PostMakeReservations(t *testing.T) {
 		t.Errorf("Post Make_Reservation handler returned wrong response code: got %d, wanted %d", rr.Code, http.StatusTemporaryRedirect)
 	}
 
+}
+
+func TestRepository_PostSearchAvailabilityJSON(t *testing.T) {
+	// # test cases
+	/*
+		* test cases : rooms are not available
+		test case 2: rooms are available
+	*/
+	// test case : rooms are not available
+	reqBody := "start=2050-01-02"
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "end=2050-01-05")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
+
+	req, _ := http.NewRequest(http.MethodPost, "/search-availability-json", strings.NewReader(reqBody))
+	ctx := GetCtx(req)
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	handler := http.HandlerFunc(Repo.PostSearchAvailabilityJSON)
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	var jsonRes jsonResponse
+	err := json.Unmarshal([]byte(rr.Body.String()), &jsonRes)
+	if err != nil {
+		t.Error("failed to parse jsonRes json")
+	}
+
+	if jsonRes.OK {
+		t.Error("date should not be available but got availability")
+	}
+	// test case : roooms are available
+	reqBody = "start=2022-01-02"
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "end=2050-01-05")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=1")
+
+	req, _ = http.NewRequest(http.MethodPost, "/search-availability-json", strings.NewReader(reqBody))
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	handler = http.HandlerFunc(Repo.PostSearchAvailabilityJSON)
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	err = json.Unmarshal([]byte(rr.Body.String()), &jsonRes)
+	if err != nil {
+		t.Error("failed to parse jsonRes json")
+	}
+
+	if !jsonRes.OK {
+		t.Error("date should be available but got no availability")
+	}
+
+	// test case : roooms are not available and generate an error
+	reqBody = "start=2022-01-02"
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "end=2050-01-05")
+	reqBody = fmt.Sprintf("%s&%s", reqBody, "room_id=100")
+
+	req, _ = http.NewRequest(http.MethodPost, "/search-availability-json", strings.NewReader(reqBody))
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	handler = http.HandlerFunc(Repo.PostSearchAvailabilityJSON)
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	err = json.Unmarshal([]byte(rr.Body.String()), &jsonRes)
+	if err != nil {
+		t.Error("failed to parse jsonRes json")
+	}
+
+	if jsonRes.OK {
+		t.Error("date should be not available but got availability")
+	}
+
+	// test case 4 : no form body provided
+	req, _ = http.NewRequest(http.MethodPost, "/search-availability-json", nil)
+	ctx = GetCtx(req)
+	req = req.WithContext(ctx)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	handler = http.HandlerFunc(Repo.PostSearchAvailabilityJSON)
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	err = json.Unmarshal([]byte(rr.Body.String()), &jsonRes)
+	if err != nil {
+		t.Error("failed to parse jsonRes json")
+	}
+
+	if jsonRes.OK {
+		t.Error("date should be not available but got availability")
+	}
 }
 
 func GetCtx(req *http.Request) context.Context {

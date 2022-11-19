@@ -240,28 +240,39 @@ type jsonResponse struct {
 
 // PostSearchAvailabilityJSON handles request for availability and send JSON response
 func (m *Repository) PostSearchAvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		// can't parse form, so return apprpriate json
+		resp := jsonResponse{
+			OK:      false,
+			Message: "internal server error",
+		}
+
+		out, _ := json.MarshalIndent(resp, "", "	")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
+		return
+	}
+
 	sd := r.Form.Get("start")
 	ed := r.Form.Get("end")
 
 	layout := "2006-01-02"
-	startDate, err := time.Parse(layout, sd)
-	if err != nil {
-		helpers.ServerError(w, err)
-		return
-	}
-	endDate, err2 := time.Parse(layout, ed)
-	if err2 != nil {
-		helpers.ServerError(w, err2)
-		return
-	}
-	roomID, err3 := strconv.Atoi(r.Form.Get("room_id"))
-	if err3 != nil {
-		helpers.ServerError(w, err3)
-		return
-	}
+	startDate, _ := time.Parse(layout, sd)
+	endDate, _ := time.Parse(layout, ed)
+	roomID, _ := strconv.Atoi(r.Form.Get("room_id"))
 	available, err4 := m.DB.SearchAvailabilityByDatesByRoomID(startDate, endDate, roomID)
 	if err4 != nil {
-		helpers.ServerError(w, err)
+		// can't parse form, so return apprpriate json
+		resp := jsonResponse{
+			OK:      false,
+			Message: "internal server error",
+		}
+
+		out, _ := json.MarshalIndent(resp, "", "	")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(out)
 		return
 	}
 
@@ -272,11 +283,7 @@ func (m *Repository) PostSearchAvailabilityJSON(w http.ResponseWriter, r *http.R
 		EndDate:   ed,
 		RoomID:    strconv.Itoa(roomID),
 	}
-	out, err5 := json.MarshalIndent(resp, "", "     ")
-	if err5 != nil {
-		helpers.ServerError(w, err5)
-		return
-	}
+	out, _ := json.MarshalIndent(resp, "", "     ")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
