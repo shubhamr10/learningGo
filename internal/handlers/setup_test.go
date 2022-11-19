@@ -3,6 +3,14 @@ package handlers
 import (
 	"encoding/gob"
 	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -11,13 +19,6 @@ import (
 	"github.com/shubhamr10/learningGo/internal/driver"
 	"github.com/shubhamr10/learningGo/internal/models"
 	"github.com/shubhamr10/learningGo/internal/render"
-	"html/template"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"testing"
-	"time"
 )
 
 var app config.AppConfig
@@ -48,6 +49,13 @@ func TestMain(m *testing.M) {
 	session.Cookie.Secure = app.InProduction
 
 	app.Session = session
+
+	mailChan := make(chan models.MailData)
+	app.MailChan = mailChan
+
+	defer close(mailChan)
+
+	listenforMail()
 
 	tc, err := CreateTestTemplateCache()
 	if err != nil {
@@ -147,4 +155,13 @@ func CreateTestTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return myCache, nil
+}
+
+func listenforMail() {
+	go func() {
+		for {
+
+			_ = <-app.MailChan
+		}
+	}()
 }
