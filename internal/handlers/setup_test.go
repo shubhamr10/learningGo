@@ -3,6 +3,14 @@ package handlers
 import (
 	"encoding/gob"
 	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -11,12 +19,6 @@ import (
 	"github.com/shubhamr10/learningGo/internal/driver"
 	"github.com/shubhamr10/learningGo/internal/models"
 	"github.com/shubhamr10/learningGo/internal/render"
-	"html/template"
-	"log"
-	"net/http"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 var app config.AppConfig
@@ -27,7 +29,7 @@ var infoLog *log.Logger
 var errorLog *log.Logger
 var db *driver.DB
 
-func getRoutes() http.Handler {
+func TestMain(m *testing.M) {
 
 	// What am I going to put in the sessions
 	gob.Register(models.Reservation{})
@@ -48,16 +50,28 @@ func getRoutes() http.Handler {
 
 	app.Session = session
 
+	mailChan := make(chan models.MailData)
+	app.MailChan = mailChan
+
+	defer close(mailChan)
+
+	listenforMail()
+
 	tc, err := CreateTestTemplateCache()
 	if err != nil {
 		log.Fatal(err)
 	}
 	app.TemplateCache = tc
 	app.UseCache = true
-	repo := NewRepo(&app, db)
+	repo := NewTestRepo(&app)
 	NewHandlers(repo)
 
 	render.NewRenderer(&app)
+
+	os.Exit(m.Run())
+}
+
+func getRoutes() http.Handler {
 
 	mux := chi.NewRouter()
 
@@ -141,4 +155,13 @@ func CreateTestTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return myCache, nil
+}
+
+func listenforMail() {
+	go func() {
+		for {
+
+			_ = <-app.MailChan
+		}
+	}()
 }

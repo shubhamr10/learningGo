@@ -71,3 +71,10 @@ db.ExecContext
 
 soda generate sql <filename>
 generates a sql migration file
+
+
+# For email sending use
+
+```go
+go get github.com/xhit/go-simple-mail/v2
+```
