@@ -487,3 +487,8 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/users/login", http.StatusSeeOther)
 }
+
+// AdminDashboard is route to admin dashboard
+func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-dashboard.page.tmpl", &models.TemplateData{})
+}
