@@ -11,9 +11,12 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"time"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"humanDate": HumanDate,
+}
 
 var app *config.AppConfig
 var pathToTemplate = "./templates"
@@ -23,11 +26,19 @@ func NewRenderer(a *config.AppConfig) {
 	app = a
 }
 
+// HumanDate converts tp human-readable date
+func HumanDate(t time.Time) string {
+	return t.Format("2006-01-02")
+}
+
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
 	td.Flash = app.Session.PopString(r.Context(), "flash")
 	td.Warning = app.Session.PopString(r.Context(), "warning")
 	td.Error = app.Session.PopString(r.Context(), "error")
 	td.CSRFToken = nosurf.Token(r)
+	if app.Session.Exists(r.Context(), "user_id") {
+		td.IsAuthenticated = 1
+	}
 	return td
 }
 
