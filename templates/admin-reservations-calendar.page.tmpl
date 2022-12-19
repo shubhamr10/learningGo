@@ -1,10 +1,23 @@
 {{template "admin" .}}
 {{define "page-title"}}
-    Dashboard
+    Reservation Calendar
 {{end}}
 
 {{define "content"}}
     <div class="col-sm-12">
-        Reservations calendar content
+
+        <div class="text-center">
+            {{index .StringMap "this_month"}} {{index .StringMap "this_month_year"}}
+        </div>
+
+        <div class="float-left">
+            <a href="/admin/reservation-calendars?y={{index .StringMap "last_month_year"}}&m={{index .StringMap "last_month"}}"
+               class="btn btn-sm btn-outline-secondary">&lt;&lt;</a>
+        </div>
+        <div class="float-right">
+            <a href="/admin/reservation-calendars?y={{index .StringMap "next_month_year"}}&m={{index .StringMap "next_month"}}"
+               class="btn btn-sm btn-outline-secondary">&gt;&gt;</a>
+        </div>
+        <div class="clearfix"></div>
     </div>
 {{end}}
