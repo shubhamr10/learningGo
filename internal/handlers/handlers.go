@@ -714,3 +714,21 @@ func (m *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Reque
 
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
 }
+
+// AdminPostReservationsCalender handles post of reservation calenders
+func (m *Repository) AdminPostReservationsCalender(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		helpers.ServerError(w, err)
+		return
+	}
+
+	year, _ := strconv.Atoi(r.Form.Get("y"))
+	month, _ := strconv.Atoi(r.Form.Get("m"))
+
+	// process blocks
+
+	m.App.Session.Put(r.Context(), "flash", "Changes saved!")
+
+	http.Redirect(w, r, fmt.Sprintf("/admin/reservation-calendars?y=%d&m=%d", year, month), http.StatusSeeOther)
+}
