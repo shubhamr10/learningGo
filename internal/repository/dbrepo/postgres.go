@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/shubhamr10/learningGo/internal/models"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"time"
 )
 
@@ -425,4 +426,33 @@ func (m *postgresDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end tim
 		return nil, err
 	}
 	return restrictions, nil
+}
+
+// InsertBlockForRoom inserts a room restrictions
+func (m *postgresDBRepo) InsertBlockForRoom(id int, startDate time.Time) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "INSERT INTO room_restrictions (start_date, end_date, room_id, restrictions_id, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6)"
+	_, err := m.DB.ExecContext(ctx, query, startDate, startDate.AddDate(0, 0, 1), id, 2, time.Now(), time.Now())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+// DeleteBlockByID deletes a room restrictions
+func (m *postgresDBRepo) DeleteBlockByID(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := "DELETE FROM room_restrictions WHERE id = $1"
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
