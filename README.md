@@ -81,3 +81,7 @@ generates a sql migration file
 ```go
 go get github.com/xhit/go-simple-mail/v2
 ```
+
+
+# command line arguments are best for usage
+ if want to use .env use godotenv
