@@ -90,7 +90,10 @@ func (m *testDBRepo) UpdateUser(u models.User) error {
 }
 
 func (m *testDBRepo) Authenticate(email, testPassword string) (int, string, error) {
-	return 0, "", nil
+	if email == "admin@admin.co" {
+		return 0, "", nil
+	}
+	return 0, "", errors.New("login error")
 }
 
 // AllReservations returns the list of all the reservations.

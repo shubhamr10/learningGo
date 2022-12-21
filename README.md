@@ -29,6 +29,9 @@ https://github.com/CloudyKit/jet
 ## See your test coverage in details
 go test -coverprofile=coverage.out && go tool cover -html=coverage.out
 
+
+go test -cover
+
 # Database integration
 
 We are using :postgres as a database through docker.
