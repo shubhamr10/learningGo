@@ -29,6 +29,9 @@ https://github.com/CloudyKit/jet
 ## See your test coverage in details
 go test -coverprofile=coverage.out && go tool cover -html=coverage.out
 
+
+go test -cover
+
 # Database integration
 
 We are using :postgres as a database through docker.
@@ -78,3 +81,7 @@ generates a sql migration file
 ```go
 go get github.com/xhit/go-simple-mail/v2
 ```
+
+
+# command line arguments are best for usage
+ if want to use .env use godotenv
